@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EllaFit — Ellara no WhatsApp (Real)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --pink: #E91E8C;
+    --pink-light: #ff6eb4;
+    /* WhatsApp iOS dark mode colors */
+    --wa-bg: #0b0b0b;
+    --wa-bubble-out: #134D37;
+    --wa-bubble-in: #262628;
+    --wa-text: #e9e9eb;
+    --wa-time: rgba(255,255,255,0.45);
+    --wa-tick: #53bdeb;
+    --wa-header-bg: #1c1c1e;
+    --wa-input-bg: #1c1c1e;
+    --wa-field-bg: #2c2c2e;
+    --wa-encrypted-bg: #1d2b20;
+    --wa-encrypted-text: #d7b45a;
+  }
+
+  body {
+    background: linear-gradient(160deg, #1a0a2e 0%, #3d0f6b 40%, #1a0a2e 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 60px;
+    font-family: 'Inter', -apple-system, sans-serif;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .header-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(233,30,140,0.15);
+    border: 1px solid rgba(233,30,140,0.4);
+    color: #f9a8d4;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .header h1 span { color: var(--pink); }
+  .header p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* Scene selector */
+  .scene-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .scene-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: 'Inter', sans-serif;
+  }
+  .scene-btn:hover { border-color: var(--pink); color: var(--pink); }
+  .scene-btn.active {
+    background: var(--pink);
+    border-color: var(--pink);
+    color: #fff;
+  }
+
+  /* Phone */
+  .phone-wrap { position: relative; width: 330px; }
+  .phone-glow {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px; height: 520px;
+    background: radial-gradient(ellipse, rgba(233,30,140,0.3) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .phone {
+    position: relative;
+    z-index: 1;
+    width: 330px;
+    background: #000;
+    border-radius: 48px;
+    padding: 10px;
+    box-shadow:
+      0 40px 100px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(255,255,255,0.12),
+      inset 0 0 0 2px rgba(255,255,255,0.05);
+  }
+
+  .phone-screen {
+    border-radius: 40px;
+    overflow: hidden;
+    background: var(--wa-bg);
+    position: relative;
+  }
+
+  /* iOS status bar */
+  .ios-status {
+    background: var(--wa-bg);
+    padding: 12px 24px 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+  .ios-time {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+  .ios-island {
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 30px;
+    background: #000;
+    border-radius: 20px;
+  }
+  .ios-right {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: #fff;
+    font-weight: 600;
+  }
+  .battery {
+    width: 24px;
+    height: 12px;
+    border: 1.5px solid rgba(255,255,255,0.5);
+    border-radius: 3.5px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 1.5px;
+  }
+  .battery::after {
+    content: "";
+    position: absolute;
+    right: -4px;
+    top: 3px;
+    width: 2px;
+    height: 5px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 0 2px 2px 0;
+  }
+  .battery-fill {
+    height: 100%;
+    width: 60%;
+    background: #fff;
+    border-radius: 1.5px;
+  }
+
+  /* WhatsApp iOS header */
+  .wa-header {
+    background: var(--wa-bg);
+    padding: 6px 12px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.1);
+  }
+  .wa-back-group {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.08);
+    border-radius: 22px;
+    padding: 8px 12px 8px 8px;
+    gap: 4px;
+  }
+  .wa-back-arrow {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .wa-badge {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .wa-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pink), var(--pink-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-left: 4px;
+  }
+  .wa-contact {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+  }
+  .wa-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .verified {
+    width: 15px;
+    height: 15px;
+    background: #25D366;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #000;
+    font-weight: 900;
+  }
+  .wa-status-text {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+  }
+  .wa-actions {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.08);
+    border-radius: 22px;
+    padding: 9px 16px;
+    gap: 18px;
+  }
+  .wa-action-icon {
+    color: #fff;
+    font-size: 17px;
+    line-height: 1;
+  }
+
+  /* Chat area with doodle pattern */
+  .wa-chat {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-height: 400px;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: var(--wa-bg);
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,255,255,0.015) 2px, transparent 2px),
+      radial-gradient(circle at 60% 70%, rgba(255,255,255,0.015) 2px, transparent 2px),
+      radial-gradient(circle at 80% 20%, rgba(255,255,255,0.015) 1.5px, transparent 1.5px),
+      radial-gradient(circle at 40% 85%, rgba(255,255,255,0.015) 1.5px, transparent 1.5px),
+      radial-gradient(circle at 90% 55%, rgba(255,255,255,0.012) 2px, transparent 2px),
+      radial-gradient(circle at 10% 60%, rgba(255,255,255,0.012) 2px, transparent 2px);
+    background-size: 90px 90px, 110px 110px, 70px 70px, 100px 100px, 85px 85px, 95px 95px;
+  }
+
+  .wa-date {
+    text-align: center;
+    margin: 6px 0 10px;
+  }
+  .wa-date span {
+    background: #1c1c1e;
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 10px;
+  }
+
+  .wa-encrypted {
+    background: #241f14;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 0 8px 12px;
+    text-align: center;
+  }
+  .wa-encrypted p {
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: var(--wa-encrypted-text);
+  }
+  .wa-encrypted p strong {
+    color: var(--wa-encrypted-text);
+    font-weight: 700;
+  }
+
+  /* Messages */
+  .msg {
+    display: flex;
+    flex-direction: column;
+    max-width: 82%;
+    margin-bottom: 3px;
+    animation: msgIn 0.3s ease forwards;
+    opacity: 0;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.out { align-self: flex-end; }
+  .msg.in { align-self: flex-start; }
+
+  .msg-bubble {
+    padding: 8px 10px 6px;
+    border-radius: 16px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    position: relative;
+    color: var(--wa-text);
+  }
+  .msg.out .msg-bubble {
+    background: var(--wa-bubble-out);
+    border-bottom-right-radius: 5px;
+  }
+  .msg.in .msg-bubble {
+    background: var(--wa-bubble-in);
+    border-bottom-left-radius: 5px;
+  }
+
+  .msg-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    float: right;
+    margin-left: 8px;
+    margin-top: 6px;
+    transform: translateY(2px);
+  }
+  .msg-time {
+    font-size: 10.5px;
+    color: var(--wa-time);
+  }
+  .tick {
+    color: var(--wa-tick);
+    font-size: 12px;
+    letter-spacing: -2px;
+  }
+
+  /* Typing indicator */
+  .typing {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 14px;
+    background: var(--wa-bubble-in);
+    border-radius: 16px;
+    border-bottom-left-radius: 5px;
+    align-self: flex-start;
+    max-width: 64px;
+  }
+  .typing span {
+    width: 7px; height: 7px;
+    background: #666;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); background: var(--pink); }
+  }
+
+  /* WhatsApp iOS input bar */
+  .wa-input {
+    background: var(--wa-bg);
+    padding: 8px 12px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 0.5px solid rgba(255,255,255,0.08);
+  }
+  .wa-plus {
+    color: #fff;
+    font-size: 24px;
+    font-weight: 300;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .wa-field {
+    flex: 1;
+    background: var(--wa-field-bg);
+    border-radius: 20px;
+    padding: 9px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .wa-field-placeholder {
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+  }
+  .wa-sticker {
+    font-size: 17px;
+    opacity: 0.7;
+  }
+  .wa-cam, .wa-mic {
+    color: #fff;
+    font-size: 19px;
+    flex-shrink: 0;
+  }
+
+  /* Home indicator */
+  .home-indicator {
+    position: absolute;
+    bottom: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 130px;
+    height: 5px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 3px;
+  }
+
+  /* Scene info */
+  .scene-info {
+    width: 330px;
+    margin-top: 20px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 16px 18px;
+  }
+  .scene-tag {
+    display: inline-block;
+    background: var(--pink);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .scene-title { font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+  .scene-desc { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+  /* Progress */
+  .progress {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .progress-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: all 0.3s;
+  }
+  .progress-dot.active {
+    background: var(--pink);
+    width: 24px;
+    border-radius: 4px;
+  }
+
+  /* CTA */
+  .cta-box {
+    width: 330px;
+    margin-top: 24px;
+    background: linear-gradient(135deg, var(--pink), var(--pink-light));
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(233,30,140,0.4);
+  }
+  .cta-box p {
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .cta-box p strong { color: #fff; }
+  .cta-btn {
+    background: #fff;
+    color: var(--pink);
+    font-size: 14px;
+    font-weight: 800;
+    padding: 12px 28px;
+    border-radius: 999px;
+    display: inline-block;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">🌸 Diferencial EllaFit</div>
+  <h1>Conheça a <span>Ellara</span><br>sua personal no WhatsApp</h1>
+  <p>Disponível 24h por dia. Para qualquer situação da sua vida.</p>
+</div>
+
+<div class="scene-nav">
+  <button class="scene-btn active" onclick="showScene(0)">🏋️ Academia</button>
+  <button class="scene-btn" onclick="showScene(1)">🌸 Cólica</button>
+  <button class="scene-btn" onclick="showScene(2)">🎂 Aniversário</button>
+  <button class="scene-btn" onclick="showScene(3)">✈️ Viagem</button>
+</div>
+
+<div class="phone-wrap">
+  <div class="phone-glow"></div>
+  <div class="phone">
+    <div class="phone-screen">
+
+      <!-- iOS status bar -->
+      <div class="ios-status">
+        <div class="ios-time" id="ios-clock">9:02</div>
+        <div class="ios-island"></div>
+        <div class="ios-right">
+          <span>▂▄▆█</span>
+          <span>5G</span>
+          <div class="battery"><div class="battery-fill"></div></div>
+        </div>
+      </div>
+
+      <!-- WhatsApp header -->
+      <div class="wa-header">
+        <div class="wa-back-group">
+          <span class="wa-back-arrow">‹</span>
+          <span class="wa-badge">1</span>
+        </div>
+        <div class="wa-avatar">🌸</div>
+        <div class="wa-contact">
+          <div class="wa-name">Ellara <span class="verified">✓</span></div>
+          <div class="wa-status-text" id="wa-status">online</div>
+        </div>
+        <div class="wa-actions">
+          <span class="wa-action-icon">📹</span>
+          <span class="wa-action-icon">📞</span>
+        </div>
+      </div>
+
+      <!-- Chat -->
+      <div class="wa-chat" id="chat">
+        <div class="wa-date"><span>Today</span></div>
+        <div class="wa-encrypted">
+          <p>🔒 Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them. <strong>Learn more</strong></p>
+        </div>
+      </div>
+
+      <!-- Input bar -->
+      <div class="wa-input">
+        <span class="wa-plus">+</span>
+        <div class="wa-field">
+          <span class="wa-field-placeholder"></span>
+          <span class="wa-sticker">🏷</span>
+        </div>
+        <span class="wa-cam">📷</span>
+        <span class="wa-mic">🎙</span>
+      </div>
+
+      <div class="home-indicator"></div>
+
+    </div>
+  </div>
+</div>
+
+<div class="scene-info" id="scene-info">
+  <div class="scene-tag">Cena 1 de 4</div>
+  <div class="scene-title">Academia lotada</div>
+  <div class="scene-desc">A situação mais comum para quem treina. A Ellara resolve na hora, sem precisar abrir o app.</div>
+</div>
+
+<div class="progress">
+  <div class="progress-dot active" id="dot-0"></div>
+  <div class="progress-dot" id="dot-1"></div>
+  <div class="progress-dot" id="dot-2"></div>
+  <div class="progress-dot" id="dot-3"></div>
+</div>
+
+<div class="cta-box" id="cta-box" style="display:none;">
+  <p><strong>Você passa por isso também?</strong><br>A Ellara está disponível 24h pra te ajudar em qualquer situação.</p>
+  <div class="cta-btn">Quero a Ellara 🌸</div>
+</div>
+
+<script>
+  const scenes = [
+    {
+      tag: "Cena 1 de 4",
+      title: "Academia lotada",
+      desc: "A situação mais comum para quem treina. A Ellara resolve na hora, sem precisar abrir o app.",
+      clock: "14:32",
+      messages: [
+        { type: "out", text: "Ellara, tô aqui na academia e o leg press tá lotado 😩 o que eu faço enquanto espero?", time: "14:32" },
+        { type: "in", text: "Faz o agachamento sumô com halteres! 💪 Trabalha o mesmo grupo muscular — 4x12 com o mesmo peso que você usaria no leg. Quando liberar, volta pro leg normalmente 🔥", time: "14:32" },
+        { type: "out", text: "Mano você me salvou, ia embora sem fazer perna 😭🙏", time: "14:33" },
+      ]
+    },
+    {
+      tag: "Cena 2 de 4",
+      title: "Dia de cólica",
+      desc: "Ela entende o corpo feminino de verdade. Não é um app qualquer — é uma assistente que conhece você.",
+      clock: "8:15",
+      messages: [
+        { type: "out", text: "Ellara tô com muita cólica hoje 😢 dá pra fazer treino mais leve ou melhor descansar?", time: "8:15" },
+        { type: "in", text: "Hoje é dia de escutar seu corpo 🌸 Cancela o treino de força. Se quiser se movimentar, faz 20 min de caminhada leve — ajuda com a cólica. E sim, pode comer um docinho: 1 quadradinho de chocolate 70% tem só 50kcal e já mata o desejo sem sair da dieta 🍫", time: "8:15" },
+        { type: "out", text: "Que alívio... achei que ia estragar tudo. Obrigada ❤️", time: "8:16" },
+      ]
+    },
+    {
+      tag: "Cena 3 de 4",
+      title: "Aniversário inesperado",
+      desc: "Ela não te abandona nem nos momentos difíceis. Recalcula tudo em tempo real para você aproveitar sem culpa.",
+      clock: "18:47",
+      messages: [
+        { type: "out", text: "Ellara socorro 😰 é aniversário da minha amiga hoje e vou ter que comer bolo... estraguei tudo?", time: "18:47" },
+        { type: "in", text: "Nada estraga tudo com uma refeição! 😊 Recalculei seu dia: pula o carboidrato do jantar e vai de proteína + salada. Aí você come 1 fatia de bolo tranquila — suas calorias do dia ficam dentro da meta. Aproveita a festa! 🎂", time: "18:47" },
+        { type: "out", text: "Não acredito que você calculou isso pra mim agora... você é incrível 😭✨", time: "18:48" },
+      ]
+    },
+    {
+      tag: "Cena 4 de 4",
+      title: "Viagem sem academia",
+      desc: "Para qualquer situação da sua vida — a Ellara está lá. É isso que o EllaFit oferece que nenhum app oferece.",
+      clock: "21:03",
+      messages: [
+        { type: "out", text: "Ellara vou viajar essa semana e não vou ter academia 😰 perco tudo que conquistei?", time: "21:03" },
+        { type: "in", text: "Não perde nada! 💪 Montei um treino de hotel pra você: agachamento, afundo, flexão e prancha — 4 exercícios, 30 minutos, zero equipamento. Manda 'treino viagem' aqui que eu te envio completo 🌸", time: "21:03" },
+        { type: "out", text: "Mano eu não consigo mais imaginar treinar sem você 😍", time: "21:04" },
+      ]
+    }
+  ];
+
+  let animating = false;
+
+  function showScene(index) {
+    if (animating) return;
+    animating = true;
+
+    document.querySelectorAll('.scene-btn').forEach((b, i) => b.classList.toggle('active', i === index));
+    document.querySelectorAll('.progress-dot').forEach((d, i) => d.classList.toggle('active', i === index));
+
+    const scene = scenes[index];
+    document.querySelector('.scene-tag').textContent = scene.tag;
+    document.querySelector('.scene-title').textContent = scene.title;
+    document.querySelector('.scene-desc').textContent = scene.desc;
+    document.getElementById('ios-clock').textContent = scene.clock;
+
+    document.getElementById('cta-box').style.display = index === 3 ? 'block' : 'none';
+
+    const chat = document.getElementById('chat');
+    chat.innerHTML = `
+      <div class="wa-date"><span>Today</span></div>
+      <div class="wa-encrypted">
+        <p>🔒 Messages and calls are end-to-end encrypted. Only people in this chat can read, listen to, or share them. <strong>Learn more</strong></p>
+      </div>
+    `;
+
+    const status = document.getElementById('wa-status');
+    status.textContent = 'online';
+
+    let delay = 300;
+    scene.messages.forEach((msg, i) => {
+      setTimeout(() => {
+        if (i === 1) {
+          status.textContent = 'typing...';
+          const typing = document.createElement('div');
+          typing.className = 'typing';
+          typing.innerHTML = '<span></span><span></span><span></span>';
+          typing.id = 'typing-indicator';
+          chat.appendChild(typing);
+          chat.scrollTop = chat.scrollHeight;
+
+          setTimeout(() => {
+            const t = document.getElementById('typing-indicator');
+            if (t) t.remove();
+            status.textContent = 'online';
+            addMessage(chat, msg);
+            if (i === scene.messages.length - 1) animating = false;
+          }, 1400);
+        } else {
+          addMessage(chat, msg);
+          if (i === scene.messages.length - 1) {
+            setTimeout(() => animating = false, 400);
+          }
+        }
+      }, delay);
+      delay += msg.type === 'in' ? 2000 : 700;
+    });
+  }
+
+  function addMessage(chat, msg) {
+    const el = document.createElement('div');
+    el.className = `msg ${msg.type}`;
+    const ticks = msg.type === 'out' ? '<span class="tick">✓✓</span>' : '';
+    el.innerHTML = `
+      <div class="msg-bubble">${msg.text}<span class="msg-meta"><span class="msg-time">${msg.time}</span> ${ticks}</span></div>
+    `;
+    chat.appendChild(el);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  showScene(0);
+</script>
+
+</body>
+</html>
